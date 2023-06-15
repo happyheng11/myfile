@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Game</title>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas{
+            display:flex;
+            align-items: center;
+            justify-content: center;            
+            height: 100wh;
+            width: 100vw;
+            background:#171414;
+            margin: 0 auto;
+        }
+    </style>
+
+</head>
+<body>
+    <canvas id="mycanvas"></canvas>
+
+
+    <script>
+        const canvas = document.getElementById("mycanvas");
+        const context = canvas.getContext("2d");
+
+        const ball = new Image();
+        function init(){
+            ball.src = "ball.png";
+        }
+
+        /*
+        // draw a square
+        context.beginPath();
+        context.rect(20,40,50,50);
+        context.fillStyle = "#FF0000";
+        context.fill();
+        context.closePath();
+
+        // draw a rectangle
+        context.beginPath();
+        context.rect(160, 10, 100, 40);
+        context.strokeStyle = "rgba(0, 0, 255, 0.5)";
+        context.stroke();
+        context.closePath();
+        */
+
+        // Global variables (which will persist in value changes from condtional changes in the functions
+        // whenever the function(s) is/are called
+        // For ball:        
+        let x = canvas.width / 2;
+        let y = canvas.height-100;
+        let dx = 2;
+        let dy = -2;
+        const ballRadius = 3;
+        let dt = 1000000;
+        // For paddle:
+        const offsetTopRestriction = 2/3*canvas.height;
+        const paddleHeight = 20;
+        const paddleWidth = 40;
+        let xpaddle = canvas.width/2;
+        let ypaddle = canvas.height-60;
+        let paddlemove = 3;
+        // For keys:
+        let rightPressed = false;
+        let leftPressed = false;
+        let upPressed = false;
+        let downPressed = false;
+        // for bricks:        
+        const brickRowCount = 3;
+        const brickColumnCount = 7;
+        let brickWidth = 15;
+        let brickHeight = 5;
+        let brickPadding = 15;
+        let brickOffsetTop = 30;
+        let brickOffsetLeft = 45;
+        let bricks = [];
+        for (let c=0; c<brickColumnCount; c++){
+            bricks[c] = [];
+            for (let r=0; r<brickRowCount; r++){
+                bricks[c][r] = {x:0,y:0, status:1};
+            }
+        }
+        // for score
+        let score = 0;
+        // for game stop (game=0 is for game stop)
+        let game = 1;
+
+        // DRAW FUNCTION
+        function draw(){    
+            
+            context.clearRect(0,0,canvas.width, canvas.height);
+            drawball();
+            //drawballpath();
+            drawpaddle();
+            drawbricks();
+            drawscore();
+
+            /// Paddle movement
+            if(rightPressed && xpaddle<canvas.width-paddleWidth){
+                xpaddle+=paddlemove;
+            }            
+            if(leftPressed && xpaddle>0){
+                xpaddle-=paddlemove;
+            }                        
+            if(downPressed && ypaddle<canvas.height-paddleHeight){
+                ypaddle+=paddlemove;
+            }            
+            if(upPressed && ypaddle>offsetTopRestriction){
+                ypaddle-=paddlemove;
+            }            
+            
+            /// Collision of ball on walls and paddle 
+            if(y+dy/dt<0+ballRadius || y+dy/dt>canvas.height-ballRadius || (x+dx/dt>=xpaddle && x+dx/dt<=xpaddle+paddleWidth && y+dy/dt>=ypaddle-ballRadius && y<ypaddle)
+            || (x+dx/dt>=xpaddle && x+dx/dt<=xpaddle+paddleWidth && y+dy/dt<=ypaddle+paddleHeight+ballRadius && y>ypaddle+paddleHeight)){
+                dy=-dy; // Makes global dy become -ve of its current value whenever y+dy<0 (top wall) or y+dy>canvas.height(bottom wall)
+            }
+            if(x+dx/dt<0+ballRadius || x+dx/dt>canvas.width-ballRadius || (y+dy/dt>=ypaddle && y+dy/dt<=ypaddle+paddleHeight && x+dx/dt>=xpaddle-ballRadius && x<xpaddle)
+            || (y+dy/dt>=ypaddle && y+dy/dt<=ypaddle+paddleHeight && x+dx/dt<=xpaddle+paddleWidth+ballRadius && x>xpaddle+paddleWidth)){
+                dx=-dx; // Makes global dx become -ve of its current value whenever x+dx<0 (left wall) or x+dx>canvas.width(right wall)
+            }
+            if(y>=canvas.height-ballRadius){
+                game=0;
+            } 
+
+            /// Collision of ball on bricks
+            for(c=0; c<brickColumnCount; c++){
+                for(r=0; r<brickRowCount; r++){
+                    let b = bricks[c][r];
+                    if (b.status===1){
+                        if(x+dx/dt>=b.x && x+dx/dt<=b.x+brickWidth && ((y+dy/dt>=b.y-ballRadius && y<b.y)||(y+dy/dt<=b.y+brickHeight+ballRadius && y>b.y))){
+                            dy=-dy;
+                            b.status = 0;
+                            score += 1;
+                        }
+                        if(y+dy/dt>=b.y && y+dy/dt<=b.y+brickHeight && ((x+dx/dt>=b.x-ballRadius && x<b.x)||(x+dx/dt<=b.x+brickWidth+ballRadius && x>b.x))){
+                            dx=-dx;
+                            b.status = 0;
+                            score += 1;
+                        }
+                    }                    
+                }
+            }            
+
+            x += dx;
+            y += dy;
+
+            checkgame();
+        }
+
+        // draw ball function
+        function drawball(){            
+            context.beginPath();
+            context.arc(x, y, ballRadius, 0, Math.PI*2, false);
+            context.fillStyle = "blue";
+            context.fill();
+            context.closePath();
+        }
+
+        // // draw ballpath function
+        // function drawballpath(){            
+        //     context.beginPath();
+        //     context.lineWidth = 10;
+        //     context.strokeStyle = "white";
+        //     context.moveTo(x-10*dx,y-10*dy);
+        //     context.lineTo(x-ballRadius,y-ballRadius);
+        //     context.stroke();
+        //     context.closePath();
+        // }
+
+        // draw paddle function
+        function drawpaddle(){            
+            context.beginPath();
+            context.rect(xpaddle, ypaddle, paddleWidth, paddleHeight);            
+            context.fillStyle = "red"; 
+            context.fill();
+            context.lineWidth = 2;
+            context.strokeStyle = "purple";
+            context.moveTo(xpaddle,ypaddle);
+            context.lineTo(xpaddle+paddleWidth,ypaddle);
+            context.lineTo(xpaddle+paddleWidth,ypaddle+paddleHeight);
+            context.lineTo(xpaddle,ypaddle+paddleHeight);
+            context.lineTo(xpaddle,ypaddle);
+            context.stroke();
+            context.closePath();
+        }
+
+        // draw bricks function
+        function drawbricks(){
+            for (c=0; c<brickColumnCount; c++){
+                for (r=0; r<brickRowCount; r++){
+                    if (bricks[c][r].status === 1){
+                        bricks[c][r].x = brickOffsetLeft+c*brickWidth+c*brickPadding;
+                        bricks[c][r].y = brickOffsetTop+r*brickHeight+r*brickPadding;
+                        context.beginPath();
+                        context.rect(bricks[c][r].x, bricks[c][r].y, brickWidth, brickHeight);
+                        context.fillStyle = "yellow";
+                        context.fill();
+                        context.closePath();
+                    }                    
+                }
+            }
+        }
+
+        // draw score
+        function drawscore(){
+            context.font = "10px Arial";
+            context.fillStyle = "white";
+            context.fillText(`Score: ${score}`, 5, canvas.height-10);
+        }
+
+        // check game condition
+        function checkgame(){
+            if (game==0){
+                alert('GAME OVER');
+                document.location.reload(); // reload the current document
+                clearInterval(interval); //stop the execution
+            }
+
+            if (score === brickColumnCount*brickRowCount){
+                alert('YOU WIN');
+                document.location.reload(); // reload the current document
+                clearInterval(interval); //stop the execution
+            }
+        }
+
+
+        // define keyDownHandler and keyUpHandler
+        // Left / Right is for IE / Edge
+        // ArrowLeft / ArrowRight is for other browsers
+        function keyDownHandler(event){
+            if(event.key === "Right" || event.key === "ArrowRight"){
+                rightPressed = true;
+            }
+            else if(event.key === "Left" || event.key === "ArrowLeft"){
+                leftPressed = true;
+            } 
+            else if(event.key === "Up" || event.key === "ArrowUp"){
+                upPressed = true;
+            }  
+            else if(event.key === "Down" || event.key === "ArrowDown"){
+                downPressed = true;
+            }             
+        }
+
+        function keyUpHandler(event){
+            if(event.key === "Right" || event.key === "ArrowRight"){
+                rightPressed = false;
+            }
+            else if(event.key === "Left" || event.key === "ArrowLeft"){
+                leftPressed = false;
+            } 
+            else if(event.key === "Up" || event.key === "ArrowUp"){
+                upPressed = false;
+            }  
+            else if(event.key === "Down" || event.key === "ArrowDown"){
+                downPressed = false;
+            }             
+        }
+
+        function mouseHandler(event){            
+            
+            xpaddle = event.clientX - paddleWidth / 2;
+            
+        }
+        
+        // calling draw function at every interval of 10 milliseconds
+        document.addEventListener("keydown",keyDownHandler, false);
+        document.addEventListener("keyup",keyUpHandler, false);
+        document.addEventListener("mousemove", mouseHandler, false);
+        const interval = setInterval(draw,10); // return the interval into the 'interval' variable
+
+    </script>
+
+
+</body>
+</html>
