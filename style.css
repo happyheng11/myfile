@@ -7,7 +7,5 @@ canvas{
     display: block;
     align-items: center;
     justify-content: center;
-    width: 100vh; 
-    height: 100vh;
     background: rgb(238, 240, 241);    
 }
