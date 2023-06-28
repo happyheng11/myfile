@@ -16,8 +16,8 @@
             display:flex;
             align-items: center;
             justify-content: center;  
-            width: 100vw;
-            height: 100vh;
+            /* width: 100vw;
+            height: 100vh; */
             background:rgb(174, 174, 174);
             margin: 0 auto;
         }
@@ -25,8 +25,8 @@
 
 </head>
 <body>
-    <canvas id="mycanvas"></canvas>
-    <div><img id="img" src="ball.png"></div>
+    <canvas id="mycanvas" height="300" width="300"><img id="img" src="ball.png"></canvas>
+    
 
 
     <script>
@@ -62,7 +62,7 @@
         let dx = 1;
         let dy = -1;
         const ballRadius = 5;
-        let dt = 1000000;
+        let dt = 1;
         // For paddle:
         const offsetTopRestriction = 2/3*canvas.height;
         const paddleHeight = 20;
@@ -82,7 +82,7 @@
         let brickHeight = 5;
         let brickPadding = 15;
         let brickOffsetTop = 30;
-        let brickOffsetLeft = 45;
+        let brickOffsetLeft = (canvas.width-(brickColumnCount*brickWidth)-((brickColumnCount-1)*brickPadding))/2;
         let bricks = [];
         for (let c=0; c<brickColumnCount; c++){
             bricks[c] = [];
@@ -129,7 +129,7 @@
             }            
             
             /// Collision of ball on walls and paddle 
-            if(y+dy/dt<0+ballRadius || y+dy/dt>canvas.height-ballRadius || (x+dx/dt>=xpaddle && x+dx/dt<=xpaddle+paddleWidth && y+dy/dt>=ypaddle-ballRadius && y<ypaddle)
+            if(y+dy/dt<0+ballRadius || y+dy/dt>canvas.height-ballRadius || (x+dx/dt>=xpaddle && x+dx/dt<=xpaddle+paddleWidth && y+dy/dt>=ypaddle-ballRadius && y<ypaddle && dy>0)
             || (x+dx/dt>=xpaddle && x+dx/dt<=xpaddle+paddleWidth && y+dy/dt<=ypaddle+paddleHeight+ballRadius && y>ypaddle+paddleHeight)){
                 dy=-dy; // Makes global dy become -ve of its current value whenever y+dy<0 (top wall) or y+dy>canvas.height(bottom wall)
             }
@@ -298,13 +298,15 @@
             var canvasX = event.clientX - canvasRect.left;
             var canvasY = event.clientY - canvasRect.top; 
 
-            // for checking X,Y coords parameters
+            // For checking X,Y coords parameters, canvasX and canvasY, mouse coords
             // context.fillText("X: "+canvasX+", Y: "+canvasY, 10, 20);
             // context.fillText("paddleX: "+xpaddle, 10, 40);
             // context.fillText("canvaswidth: "+canvas.width, 10, 60);
             // context.fillText("canvasright: "+canvasRect.right, 10, 80);
-             
-            xpaddle = (canvasX*canvas.width/canvasRect.right + canvasRect.left) - paddleWidth/2;
+            // context.fillText("canvasleft: "+canvasRect.left, 10, 100);
+            // context.fillText("eventX: "+event.clientX+", eventY: "+event.clientY, 10, 120);
+
+            xpaddle = (canvasX*canvas.width/(canvasRect.right-canvasRect.left)) - paddleWidth/2;
             if (xpaddle<0){
                 xpaddle = 0;
             }
