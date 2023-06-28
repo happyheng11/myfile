@@ -42,10 +42,10 @@ let generatefruit = true;
 let fruitx = 0;
 let fruity = 0;
 
-const gameSpeed = 5;
+const gameSpeed = 1;
 let snake1Gameover = false;
-let snake1Score = 0;
 let snake2Gameover = false;
+let snake1Score = 0;
 let snake2Score = 0;
 let timer = 120;
 
