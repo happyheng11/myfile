@@ -1,0 +1,11 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+canvas{
+    display: block;
+    align-items: center;
+    justify-content: center;
+    background: rgb(44, 44, 44);    
+}
