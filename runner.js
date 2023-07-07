@@ -6,7 +6,8 @@ img.src = 'mario.png';
 const g = 9.8;
 // requestAnimationFrame's number of callbacks is usually 60 times per second, 
 // but will generally match the display refresh rate in most web browsers as per W3C recommendation.
-const dt = 100; 
+const dt = 200/1000; 
+
 let runnerAnimationFrame = 0;
 let maxRunnerAnimationFrame = 4;
 let runnerAnimationFrame_ = 0;
@@ -15,9 +16,10 @@ let loopspeed = 0.2; // set at any value less than 1
 const init_x = 0.1*canvas.width;
 const init_y = 0.9*canvas.height;
 let init_u_y = -42;
-let spriteThick = 25;
-let spriteHeight = 50;
+let spriteThick = 40;
+let spriteHeight = 80;
 
+let objects = [];
 
 class Runner {
     constructor(x,y,thick, height){
@@ -81,7 +83,7 @@ class Runner {
         context.fill();
         context.closePath();
 
-        // drawing the sprite
+        // drawing the sprites from the sprite sheet
         // context.drawImage(img, 45+0*35, 101, 15, 29, this.x, this.y-this.height, this.thick, this.height);
         // context.drawImage(img, 45+1*35, 101, 15, 29, this.x, this.y-this.height, this.thick, this.height);
         // context.drawImage(img, 45+2*35, 101, 15, 29, this.x, this.y-this.height, this.thick, this.height);
@@ -102,21 +104,90 @@ class Runner {
     //}
 }
 
-// class object {
-//     constructor(x,y,speed,height,thick){
-//         this.speed=speed;
-//         this.x=x;
-//         this.y=y;
-//         this.height=height;
-//         this.thick=thick;
-//     }
-// }
+class object {
+    constructor(x,y,thick,height,speed,type){
+        this.x=x;
+        this.y=y;
+        this.height=height;
+        this.thick=thick;
+        this.speed=speed;
+        this.type=type;
+    }
+
+    // update_obj(){
+    //     this.x -= speed*dt;        
+    // }    
+}
+
+function generate_obj(){
+    let obj_y = Math.round(Math.random()*0.9*canvas.height);    
+    // while(obj_y > 0.5*canvas.height-10 && obj_y < 0.5*canvas.height+10){
+    //     obj_y = Math.round(Math.random()*0.9*canvas.height);
+    // }
+    let obj_height = Math.round(Math.random()*20);
+    // while(obj_height<5){
+    //     obj_height = Math.round(Math.random()*20);
+    // }
+    let obj_thick = 10;
+    let obj_spd = Math.round(Math.random()*1);
+    let obj_type = Math.round(Math.random()*3);
+    let generated_obj = new object(canvas.width,obj_y, obj_thick, obj_height, obj_spd, obj_type);
+    return generated_obj;
+}
+
+gen_obj = generate_obj();
+objects.push(gen_obj);
+
+function update_obj_array(){
+
+    /// calculate the updated objects and their positions
+
+    // generate an obj if array contains only 1 obj or less
+    // if (objects.length<=0){
+    //     gen_obj = generate_obj();
+    //     objects.push(gen_obj);
+    // }
+    
+    // update the obj_x for each object 
+    objects.forEach(obj => {
+        // obj.x -= obj.speed*dt;
+        obj.x -= 1;
+        //obj.update_obj();
+        
+    })
+    
+    console.log(objects.length);
+    objects.forEach(obj => console.log(obj));
+
+    // remove obj which is out of screen from array and delete the obj by making it undefined
+    objects.forEach(obj => {
+        if(obj.x<=0){
+            obj=undefined;            
+        }
+    })
+    
+    objects = objects.filter(a => a!=undefined);
+}
+
+
+function drawObj(){
+
+    objects.forEach(obj => {
+        context.beginPath();
+        context.rect(obj.x, obj.y, obj.thick, obj.height);
+        context.fillStyle = "green";
+        context.fill();
+        context.closePath();
+    });
+}
 
 const mario = new Runner(init_x, init_y, spriteThick, spriteHeight); //initialize the object
 
 function draw(){
+    // clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    // draw and animate runner
     if(runnerAnimationFrame>=maxRunnerAnimationFrame){
         runnerAnimationFrame = 0;
         runnerAnimationFrame_ = 0;
@@ -126,6 +197,10 @@ function draw(){
         runnerAnimationFrame = Math.round(runnerAnimationFrame_);
     }
     mario.drawRunner();
+
+    // draw and animate objects
+    update_obj_array();
+    drawObj();
 
     requestAnimationFrame(draw); // We want to perform an animation and requests that the browser calls a specified function 
                                  // to update an animation right before the next repaint.
