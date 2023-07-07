@@ -3,10 +3,10 @@ const context = canvas.getContext("2d");
 let img = new Image();
 img.src = 'mario.png';
 
-const g = 9.8;
+const g = 10;
 // requestAnimationFrame's number of callbacks is usually 60 times per second, 
 // but will generally match the display refresh rate in most web browsers as per W3C recommendation.
-const dt = 200/1000; 
+const dt = 150; // dt cannot be too small, otherwise y-y_init will be too small 
 
 let runnerAnimationFrame = 0;
 let maxRunnerAnimationFrame = 4;
@@ -120,64 +120,110 @@ class object {
 }
 
 function generate_obj(){
-    let obj_y = Math.round(Math.random()*0.9*canvas.height);    
-    // while(obj_y > 0.5*canvas.height-10 && obj_y < 0.5*canvas.height+10){
-    //     obj_y = Math.round(Math.random()*0.9*canvas.height);
-    // }
-    let obj_height = Math.round(Math.random()*20);
-    // while(obj_height<5){
-    //     obj_height = Math.round(Math.random()*20);
-    // }
-    let obj_thick = 10;
-    let obj_spd = Math.round(Math.random()*1);
+
     let obj_type = Math.round(Math.random()*3);
-    let generated_obj = new object(canvas.width,obj_y, obj_thick, obj_height, obj_spd, obj_type);
+
+    let obj_y = Math.round(Math.random()*0.9*canvas.height);    
+    while(obj_y > 0.5*canvas.height-10 && obj_y < 0.5*canvas.height+10){
+        obj_y = Math.round(Math.random()*0.9*canvas.height);
+    }
+
+    let obj_spd = Math.round(Math.random()*5);
+
+    switch (0){    
+    //switch (obj_type){
+        case 0:
+            obj_height = 10;
+            obj_thick = 10;
+        case 1:
+            obj_height = 20;
+            obj_thick = 20;
+        case 2:
+            obj_height = 20;
+            obj_thick = 20;
+        case 3:
+            obj_height = 20;
+            obj_thick = 20;
+    }
+    
+    let generated_obj = new object(canvas.width, obj_y, obj_thick, obj_height, obj_spd, obj_type);
     return generated_obj;
 }
 
-gen_obj = generate_obj();
-objects.push(gen_obj);
+// gen_obj = generate_obj();
+// objects.push(gen_obj);
 
 function update_obj_array(){
 
     /// calculate the updated objects and their positions
 
     // generate an obj if array contains only 1 obj or less
-    // if (objects.length<=0){
-    //     gen_obj = generate_obj();
-    //     objects.push(gen_obj);
-    // }
+    if (objects.length<=1){
+        gen_obj = generate_obj();
+        objects.push(gen_obj);
+    }
     
     // update the obj_x for each object 
     objects.forEach(obj => {
-        // obj.x -= obj.speed*dt;
-        obj.x -= 1;
-        //obj.update_obj();
-        
+        obj.x -= obj.speed;
+        //obj.x -= 1;
+        //obj.update_obj();        
     })
     
-    console.log(objects.length);
-    objects.forEach(obj => console.log(obj));
+    //console.log(objects.length);
+    //objects.forEach(obj => console.log(obj));
 
     // remove obj which is out of screen from array and delete the obj by making it undefined
     objects.forEach(obj => {
         if(obj.x<=0){
-            obj=undefined;            
+            obj.x=undefined;
+            obj.y=undefined;
+            obj.thick=undefined;
+            obj.height=undefined;
+            obj.speed=undefined;
+            obj.type=undefined;            
         }
-    })
-    
-    objects = objects.filter(a => a!=undefined);
+    })    
+    objects = objects.filter(a => a.x>0);
 }
 
 
 function drawObj(){
 
     objects.forEach(obj => {
-        context.beginPath();
-        context.rect(obj.x, obj.y, obj.thick, obj.height);
-        context.fillStyle = "green";
-        context.fill();
-        context.closePath();
+        switch (0){
+        //switch (obj.type){
+            case 0:
+                context.beginPath();
+                context.rect(obj.x, obj.y, obj.thick, obj.height);
+                context.fillStyle = "rgb(44, 44, 44)";
+                context.fill();
+                context.closePath();
+
+                context.drawImage(img, 185+runnerAnimationFrame*35, 235, 16, 17, obj.x, obj.y, obj.thick, obj.height);
+
+                
+            case 1:
+                // context.beginPath();
+                // context.rect(obj.x, obj.y, obj.thick, obj.height);
+                // context.fillStyle = "";
+                // context.fill();
+                // context.closePath();
+            case 2:
+                // context.beginPath();
+                // context.rect(obj.x, obj.y, obj.thick, obj.height);
+                // context.fillStyle = "";
+                // context.fill();
+                // context.closePath();
+            case 3:
+                // context.beginPath();
+                // context.rect(obj.x, obj.y, obj.thick, obj.height);
+                // context.fillStyle = "";
+                // context.fill();
+                // context.closePath();
+
+        }
+        
     });
 }
 
