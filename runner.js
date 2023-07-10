@@ -20,6 +20,8 @@ let spriteThick = 40;
 let spriteHeight = 80;
 
 let objects = [];
+let obj_height = 10;
+let obj_width = 10;
 
 class Runner {
     constructor(x,y,thick, height){
@@ -78,7 +80,7 @@ class Runner {
     drawRunner(){
         // drawing the "block" background for the sprite
         context.beginPath();
-        context.fillStyle = "green"; 
+        context.fillStyle = ""; 
         context.rect(this.x, this.y-this.height, this.thick, this.height); 
         context.fill();
         context.closePath();
@@ -129,21 +131,24 @@ function generate_obj(){
     }
 
     let obj_spd = Math.round(Math.random()*5);
-
-    switch (0){    
-    //switch (obj_type){
+ 
+    switch (obj_type){
         case 0:
-            obj_height = 10;
-            obj_thick = 10;
+            obj_height = 30;
+            obj_thick = 30;
+            break;            
         case 1:
-            obj_height = 20;
-            obj_thick = 20;
+            obj_height = 30;
+            obj_thick = 30;
+            break;
         case 2:
-            obj_height = 20;
-            obj_thick = 20;
+            obj_height = 30;
+            obj_thick = 30;
+            break;
         case 3:
             obj_height = 20;
             obj_thick = 20;
+            break;
     }
     
     let generated_obj = new object(canvas.width, obj_y, obj_thick, obj_height, obj_spd, obj_type);
@@ -166,7 +171,6 @@ function update_obj_array(){
     // update the obj_x for each object 
     objects.forEach(obj => {
         obj.x -= obj.speed;
-        //obj.x -= 1;
         //obj.update_obj();        
     })
     
@@ -191,37 +195,43 @@ function update_obj_array(){
 function drawObj(){
 
     objects.forEach(obj => {
-        switch (0){
-        //switch (obj.type){
+        switch (obj.type){
             case 0:
                 context.beginPath();
                 context.rect(obj.x, obj.y, obj.thick, obj.height);
-                context.fillStyle = "rgb(44, 44, 44)";
+                context.fillStyle = "";
                 context.fill();
                 context.closePath();
 
                 context.drawImage(img, 185+runnerAnimationFrame*35, 235, 16, 17, obj.x, obj.y, obj.thick, obj.height);
-
-                
+                break;
             case 1:
-                // context.beginPath();
-                // context.rect(obj.x, obj.y, obj.thick, obj.height);
-                // context.fillStyle = "";
-                // context.fill();
-                // context.closePath();
-            case 2:
-                // context.beginPath();
-                // context.rect(obj.x, obj.y, obj.thick, obj.height);
-                // context.fillStyle = "";
-                // context.fill();
-                // context.closePath();
-            case 3:
-                // context.beginPath();
-                // context.rect(obj.x, obj.y, obj.thick, obj.height);
-                // context.fillStyle = "";
-                // context.fill();
-                // context.closePath();
+                context.beginPath();
+                context.rect(obj.x, obj.y, obj.thick, obj.height);
+                context.fillStyle = "";
+                context.fill();
+                context.closePath();
 
+                context.drawImage(img, 185+2*35, 260, 16, 22, obj.x, obj.y, obj.thick, obj.height);
+                break;
+            case 2:
+                context.beginPath();
+                context.rect(obj.x, obj.y, obj.thick, obj.height);
+                context.fillStyle = "";
+                context.fill();
+                context.closePath();
+
+                context.drawImage(img, 185+4*35, 260, 16, 22, obj.x, obj.y, obj.thick, obj.height);
+                break;
+            case 3:
+                context.beginPath();
+                context.rect(obj.x, obj.y, obj.thick, obj.height);
+                context.fillStyle = "";
+                context.fill();
+                context.closePath();
+
+                context.drawImage(img, 185+6*35, 260, 16, 22, obj.x, obj.y, obj.thick, obj.height);
+                break;
         }
         
     });
